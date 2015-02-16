@@ -23,11 +23,11 @@
 - name: get the cldbmaster
   command: maprcli node cldbmaster
   register: cldbmaster
-  when: "secure=true" in this_cluster_conf.stdout
+  when: '"secure=true" in this_cluster_conf.stdout'
 
 # can't obtain the CLDB master without a ticket
 - name: check that we found a cldbmaster, or fail
   assert:
     that:
       - cldbmaster.rc == 0
-  when: "secure=true" in this_cluster_conf.stdout
+  when: '"secure=true" in this_cluster_conf.stdout'
