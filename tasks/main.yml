@@ -1,0 +1,33 @@
+---
+# tasks file for mapr_cldb_startup
+
+- name: get cluster info
+  command: head -1 /opt/mapr/conf/mapr-clusters.conf
+  register: this_cluster_conf
+
+- name: start warden on CLDBs
+  service: name=mapr-warden state=started enabled=yes
+  register: cldb_started
+  when: inventory_hostname in groups["cldb"]
+
+- name: pause for a bit and wait for CLDBs to come up
+  wait_for: port=7222 delay=10 timeout=90
+  ignore_errors: yes
+  when: cldb_started.changed == True
+
+- name: let CLDBs have their election and settle
+  pause: seconds=30
+  when: cldb_started.changed == True
+
+# can't obtain the CLDB master without a ticket
+- name: get the cldbmaster
+  command: maprcli node cldbmaster
+  register: cldbmaster
+  when: "secure=true" in this_cluster_conf.stdout
+
+# can't obtain the CLDB master without a ticket
+- name: check that we found a cldbmaster, or fail
+  assert:
+    that:
+      - cldbmaster.rc == 0
+  when: "secure=true" in this_cluster_conf.stdout
