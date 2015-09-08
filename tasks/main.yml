@@ -7,6 +7,8 @@
 
 - name: start warden on CLDBs
   service: name=mapr-warden state=started enabled=yes
+  sudo: yes
+  sudo_user: root
   register: cldb_started
   when: inventory_hostname in groups["cldb"]
 
