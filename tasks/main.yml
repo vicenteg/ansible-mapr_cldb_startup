@@ -4,6 +4,7 @@
 - name: get cluster info
   command: head -1 /opt/mapr/conf/mapr-clusters.conf
   register: this_cluster_conf
+  changed_when: false
 
 - name: start warden on CLDBs
   service: name=mapr-warden state=started enabled=yes
